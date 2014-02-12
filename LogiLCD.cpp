@@ -30,7 +30,7 @@ using namespace std;
 //ofstream file;
 
 bool done = false;
-int lasttime;
+int starttime;
 
 bool LoadPlugin()
 {
@@ -38,12 +38,17 @@ bool LoadPlugin()
 	{
 		return true;
 	}
-	if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO))
+	if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO) && LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
+	{
+		//call dual thread
+		boost::thread LcdDual(Dual);
+	}
+	else if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO) && !LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
 	{
 		//call mono thread
 		boost::thread LcdMono(Mono); 
 	}
-	if(LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
+	else if(!LogiLcdIsConnected(LOGI_LCD_TYPE_MONO) && LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
 	{
 		//call colour thread
 		boost::thread LcdColour(Colour);
@@ -71,7 +76,7 @@ CTSTR GetPluginDescription()
 
 void OnStartStream()
 {
-	lasttime = OSGetTime();
+	starttime = OSGetTime();
 }
 
 void Mono()
@@ -97,7 +102,8 @@ void Mono()
 	wstringstream frames;*/
 	//stream time
 	int curtime;
-	int sec = -1;
+	int uptime;
+	int sec = 0;
 	int min = 0;
 	int hour = 0;
 	wstringstream stime;
@@ -214,22 +220,11 @@ void Mono()
 			//stream time calculations
 			stime << "Stream Uptime: ";
 			curtime = OSGetTime();
-			if(curtime - lasttime >= 1000)
-			{
-				sec++;
-				lasttime = OSGetTime();
-			}
-			if(sec == 60)
-			{
-				min++;
-				sec = 0;
-			}
-			if(min == 60)
-			{
-				hour++;
-				min = 0;
-			}
-
+			uptime = (curtime - starttime)/1000;
+			hour = (uptime / (60*60)) % 60;
+			min = (uptime / 60) % 60;
+			sec = (uptime % 60);
+			
 			stime << hour << ":";
 			if(min < 10)
 			{
@@ -291,9 +286,9 @@ void Mono()
 				LogiLcdMonoSetText(3, L"Stream Uptime: -:--:--");
 			/*}*/
 			//reset time variables
-			if(sec != -1)
+			if(sec != 0)
 			{
-				sec = -1;
+				sec = 0;
 			}
 			if(min == 0)
 			{
@@ -335,7 +330,8 @@ void Colour()
 	wstringstream frames;*/
 	//stream time
 	int curtime;
-	int sec = -1;
+	int uptime;
+	int sec = 0;
 	int min = 0;
 	int hour = 0;
 	wstringstream stime;
@@ -462,21 +458,10 @@ void Colour()
 			//stream time
 			stime << "Stream Uptime: ";
 			curtime = OSGetTime();
-			if(curtime - lasttime >= 1000)
-			{
-				sec++;
-				lasttime = OSGetTime();
-			}
-			if(sec == 60)
-			{
-				min++;
-				sec = 0;
-			}
-			if(min == 60)
-			{
-				hour++;
-				min = 0;
-			}
+			uptime = (curtime - starttime)/1000;
+			hour = (uptime / (60*60)) % 60;
+			min = (uptime / 60) % 60;
+			sec = (uptime % 60);
 
 			stime << hour << ":";
 			if(min < 10)
@@ -501,9 +486,9 @@ void Colour()
 			/*LogiLcdColorSetText(2, L"FPS: --", 255, 255, 255);
 			LogiLcdColorSetText(3, L"Bitrate: ----kb/s", 255, 255, 255);
 			LogiLcdColorSetText(4, L"Dropped Frames: -(-.--%)", 255, 255, 255);*/
-			if(sec != -1)
+			if(sec != 0)
 			{
-				sec = -1;
+				sec = 0;
 			}
 			if(min == 0)
 			{
@@ -536,6 +521,222 @@ void Colour()
 		LogiLcdUpdate();
 	}
 
+	LogiLcdShutdown();
+	return;
+}
+
+void Dual()
+{
+	wstring scene;
+	//mono buttons
+	bool miclast = false;
+	bool desklast = false;
+	bool livelast = false;
+	bool altdisplast = false;
+	//colour buttons
+	bool leftlast = false;
+	bool rightlast = false;
+	bool uplast = false;
+	bool downlast = false;
+	bool oklast = false;
+	bool cancellast = false;
+
+	//stream time
+	int curtime;
+	int uptime;
+	int sec = 0;
+	int min = 0;
+	int hour = 0;
+	wstringstream stime;
+
+	LogiLcdColorSetTitle(L"OBS", 255, 255, 255);
+
+	while(!done)
+	{
+		//mono mute and deafen buttons
+		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
+		{
+			OBSToggleMicMute();
+		}
+		if(desklast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_2) == false) //button rleased
+		{
+			OBSToggleDesktopMute();
+		}
+		miclast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1);
+		desklast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_2);
+		//mono stream and prieview buttons
+		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
+		{
+			OBSStartStopStream();
+		}
+		livelast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0);
+
+		//colour mute and deafen buttons
+		if(leftlast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_LEFT) == false) //button released
+		{
+			OBSToggleMicMute();
+		}
+		if(rightlast == true && LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_RIGHT) == false) //button rleased
+		{
+			OBSToggleDesktopMute();
+		}
+		leftlast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_LEFT);
+		rightlast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_RIGHT);
+		if(uplast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_UP) == false) //button released
+		{
+			OBSToggleMicMute();
+		}
+		if(downlast == true && LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_DOWN) == false) //button rleased
+		{
+			OBSToggleDesktopMute();
+		}
+		uplast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_UP);
+		downlast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_DOWN);
+		//colour stream and preview buttons
+		if(oklast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_OK) == false) //button released
+		{
+			OBSStartStopStream();
+		}
+		if(cancellast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_CANCEL) == false) //button released
+		{
+			OBSStartStopPreview();
+		}
+		oklast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_OK);
+		cancellast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_CANCEL);
+
+		//get scene information
+		scene = L"Scene: ";
+		scene.append(OBSGetSceneName());
+		wchar_t *name = new wchar_t[scene.length() + 1];
+		wcscpy(name, scene.c_str());	//convert to wchar_t
+		LogiLcdMonoSetText(1, name);
+		LogiLcdColorSetText(1, name, 255, 255, 255); 
+		delete [] name;					//delete temp crap
+		scene = L"";
+
+		if(OBSGetStreaming())	//streaming
+		{
+			if(!OBSGetPreviewOnly())	//and not prieview
+			{
+				LogiLcdColorSetText(0, L"Live \u25CF", 255, 0, 0);
+
+				if(OBSGetMicMuted() && OBSGetDesktopMuted())
+				{
+					LogiLcdMonoSetText(0, L"OBS     Mute||Deaf   live\u25CF");
+					LogiLcdColorSetText(4, L"Muted and Deafened", 255, 0, 0);
+				}
+				else if(OBSGetMicMuted() && !OBSGetDesktopMuted())
+				{
+					LogiLcdMonoSetText(0, L"OBS     Mute|        live\u25CF");
+					LogiLcdColorSetText(4, L"Muted", 255, 126, 0);
+				}
+				else if(!OBSGetMicMuted() && OBSGetDesktopMuted())
+				{
+					LogiLcdMonoSetText(0, L"OBS          |Deaf   live\u25CF");
+					LogiLcdColorSetText(4, L"Deafened", 255, 126, 0);
+				}
+				else
+				{
+					LogiLcdMonoSetText(0, L"OBS                  live\u25CF");
+					LogiLcdColorSetText(4, L"", 0, 0, 0);
+				}
+			}
+			else	//and preview
+			{
+				LogiLcdColorSetText(0, L"Preview \u25CF", 255, 126, 0);
+
+				if(OBSGetMicMuted() && OBSGetDesktopMuted())
+				{
+					LogiLcdMonoSetText(0, L"OBS     Mute||Deaf       \u25CF");
+					LogiLcdColorSetText(4, L"Muted and Deafened", 255, 0, 0);
+				}
+				else if(OBSGetMicMuted() && !OBSGetDesktopMuted())
+				{
+					LogiLcdMonoSetText(0, L"OBS     Mute|            \u25CF");
+					LogiLcdColorSetText(4, L"Muted", 255, 126, 0);
+				}
+				else if(!OBSGetMicMuted() && OBSGetDesktopMuted())
+				{
+					LogiLcdMonoSetText(0, L"OBS          |Deaf       \u25CF");
+					LogiLcdColorSetText(4, L"Deafened", 255, 126, 0);
+				}
+				else
+				{
+					LogiLcdMonoSetText(0, L"OBS                      \u25CF");
+					LogiLcdColorSetText(4, L"", 0, 0, 0);
+				}
+			}
+
+			stime << "Stream Uptime: ";
+			curtime = OSGetTime();
+			uptime = (curtime - starttime)/1000;
+			hour = (uptime / (60*60)) % 60;
+			min = (uptime / 60) % 60;
+			sec = (uptime % 60);
+			
+			stime << hour << ":";
+			if(min < 10)
+			{
+				stime << "0";
+			}
+			stime << min << ":";
+			if(sec < 10)
+			{
+				stime << "0";
+			}
+			stime << sec;
+
+			wchar_t *streamtime = new wchar_t[stime.str().length() +1];
+			wcscpy(streamtime, stime.str().c_str());			//copy string
+			LogiLcdMonoSetText(3, streamtime);
+			LogiLcdColorSetText(3, streamtime, 255, 255, 255);	//print to lcd		/*LINE 5 FOR FINAL*/
+			delete [] streamtime;
+			stime.str(L"");
+		}
+		else
+		{
+			LogiLcdColorSetText(0, L"", 0, 0, 0);
+			if(OBSGetMicMuted() && OBSGetDesktopMuted())
+			{
+				LogiLcdMonoSetText(0, L"OBS     Mute||Deaf       \u25CB");
+				LogiLcdColorSetText(4, L"Muted and Deafened", 255, 0, 0);
+			}
+			else if(OBSGetMicMuted() && !OBSGetDesktopMuted())
+			{
+				LogiLcdMonoSetText(0, L"OBS     Mute|            \u25CB");
+				LogiLcdColorSetText(4, L"Muted", 255, 126, 0);
+			}
+			else if(!OBSGetMicMuted() && OBSGetDesktopMuted())
+			{
+				LogiLcdMonoSetText(0, L"OBS          |Deaf       \u25CB");
+				LogiLcdColorSetText(4, L"Deafened", 255, 126, 0);
+			}
+			else
+			{
+				LogiLcdMonoSetText(0, L"OBS                      \u25CB");
+				LogiLcdColorSetText(4, L"", 0, 0, 0);
+			}
+
+			LogiLcdColorSetText(0, L"", 0, 0, 0);
+
+			if(sec != 0)
+			{
+				sec = 0;
+			}
+			if(min == 0)
+			{
+				min = 0;
+			}
+			if(hour != 0)
+			{
+				hour = 0;
+			}
+			LogiLcdMonoSetText(3, L"Stream Uptime: -:--:--");
+			LogiLcdColorSetText(3, L"Stream Uptime: -:--:--", 255, 255, 255);	/*LINE 5 FOR FINAL*/
+		}
+		//update screen
+		LogiLcdUpdate();
+	}
 	LogiLcdShutdown();
 	return;
 }

@@ -28,3 +28,4 @@ extern "C" __declspec(dllexport) void OnStartStream();
 
 void Mono();
 void Colour();
+void Dual();
