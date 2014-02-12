@@ -87,7 +87,7 @@ void Mono()
 	bool miclast = false;
 	bool desklast = false;
 	bool livelast = false;
-	bool altdisplast = false;
+	//bool altdisplast = false;
 
 	/*//fps and bitrate
 	int fps;
@@ -302,8 +302,33 @@ void Mono()
 		}
 		//update screen
 		LogiLcdUpdate();
+		Sleep(16);
 	}
 	LogiLcdShutdown();
+	//clean up
+	delete &scene;
+	delete &miclast;
+	delete &desklast;
+	delete &livelast;
+	//delete &altdisplast;
+	/*
+	delete &fps;
+	delete &bitrate;
+	delete &fpsbyte;
+
+	delete &altdisplay;
+	
+	delete &dropped;
+	delete &total;
+	delete &percent;
+	delete &frames;*/
+	
+	delete &curtime;
+	delete &uptime;
+	delete &sec;
+	delete &min;
+	delete &hour;
+	delete &stime;
 
 	return;
 }
@@ -519,6 +544,7 @@ void Colour()
 		}
 		//update screen
 		LogiLcdUpdate();
+		Sleep(16);
 	}
 
 	LogiLcdShutdown();
@@ -736,6 +762,7 @@ void Dual()
 		}
 		//update screen
 		LogiLcdUpdate();
+		Sleep(16);
 	}
 	LogiLcdShutdown();
 	return;
