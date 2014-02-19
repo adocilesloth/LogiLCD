@@ -23,5 +23,8 @@
     <ClInclude Include="LogiLCD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ending.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

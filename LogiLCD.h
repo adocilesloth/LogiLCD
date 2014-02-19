@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ********************************************************************************/
 #pragma once
 #include "OBSApi.h"
+#include "ending.h"
 
 // Entry points
 extern "C" __declspec(dllexport) bool LoadPlugin();
@@ -24,8 +25,6 @@ extern "C" __declspec(dllexport) void UnloadPlugin();
 extern "C" __declspec(dllexport) CTSTR GetPluginName();
 extern "C" __declspec(dllexport) CTSTR GetPluginDescription();
 
-extern "C" __declspec(dllexport) void OnStartStream();
-
-void Mono();
-void Colour();
-void Dual();
+DWORD WINAPI Mono(LPVOID);
+DWORD WINAPI Colour(LPVOID);
+DWORD WINAPI Dual(LPVOID);
