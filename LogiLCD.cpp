@@ -22,7 +22,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 #include <sstream>
 #include <iomanip>
 
+#include <fstream>
+
 using namespace std;
+
+ofstream file;
 
 ending close;
 HANDLE LcdThread;
@@ -36,14 +40,15 @@ bool LoadPlugin()
 	if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO) && LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
 	{
 		//call dual thread
-		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Dual, NULL, 0, 0);
+		//LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Dual, NULL, 0, 0);
+		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Colour, NULL, 0, 0);
 	}
 	else if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO))
 	{
 		//call mono thread
 		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Mono, NULL, 0, 0);
 	}
-	else if(!LogiLcdIsConnected(LOGI_LCD_TYPE_MONO))
+	else if(LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
 	{
 		//call colour thread
 		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Colour, NULL, 0, 0);
@@ -113,7 +118,30 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		//stream and prieview buttons
 		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
 		{
-			OBSStartStopStream();
+			HWND streambutton;
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
+			if(!streambutton)	//"Start Streaming" button not found, look for "Stop Streaming" button
+			{
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+			}
+
+			int brec;
+			brec = IsWindowEnabled(streambutton);
+			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
+			//force OBSStartStopStream() (Will do this for non-English localisation)
+			if(!streambutton)
+			{
+				brec = 1;
+			}
+
+			if(brec == 0)
+			{
+				OBSStartStopRecording();
+			}
+			else
+			{
+				OBSStartStopStream();
+			}
 		}
 		if(altdisplast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_3) == false)
 		{
@@ -287,6 +315,8 @@ DWORD WINAPI Colour(LPVOID lpParam)
 {
 	bool done = false;
 
+	bool live = false;
+
 	wstring scene;
 	bool leftlast = false;
 	bool rightlast = false;
@@ -341,7 +371,30 @@ DWORD WINAPI Colour(LPVOID lpParam)
 		//stream and prieview buttons
 		if(oklast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_OK) == false) //button released
 		{
-			OBSStartStopStream();
+			HWND streambutton;
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
+			if(!streambutton)
+			{
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+			}
+
+			int brec;
+			brec = IsWindowEnabled(streambutton);
+			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
+			//force OBSStartStopStream() (Will do this for non-English localisation)
+			if(!streambutton)
+			{
+				brec = 1;
+			}
+
+			if(brec == 0)
+			{
+				OBSStartStopRecording();
+			}
+			else
+			{
+				OBSStartStopStream();
+			}
 		}
 		if(cancellast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_CANCEL) == false) //button released
 		{
@@ -502,6 +555,8 @@ DWORD WINAPI Dual(LPVOID lpParam)
 {
 	bool done = false;
 
+	bool live = false;
+
 	wstring scene;
 	//mono buttons
 	bool miclast = false;
@@ -555,7 +610,30 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		//mono stream and prieview buttons
 		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
 		{
-			OBSStartStopStream();
+			HWND streambutton;
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
+			if(!streambutton)
+			{
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+			}
+
+			int brec;
+			brec = IsWindowEnabled(streambutton);
+			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
+			//force OBSStartStopStream() (Will do this for non-English localisation)
+			if(!streambutton)
+			{
+				brec = 1;
+			}
+
+			if(brec == 0)
+			{
+				OBSStartStopRecording();
+			}
+			else
+			{
+				OBSStartStopStream();
+			}
 		}
 		if(altdisplast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_3) == false)
 		{
@@ -594,7 +672,31 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		//colour stream and preview buttons
 		if(oklast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_OK) == false) //button released
 		{
-			OBSStartStopStream();
+			HWND streambutton;
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
+			if(!streambutton)
+			{
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+			}
+
+			int brec;
+			brec = IsWindowEnabled(streambutton);
+			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
+			//force OBSStartStopStream() (Will do this for non-English localisation)
+			if(!streambutton)
+			{
+				brec = 1;
+			}
+
+
+			if(brec == 0)
+			{
+				OBSStartStopRecording();
+			}
+			else
+			{
+				OBSStartStopStream();
+			}
 		}
 		if(cancellast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_CANCEL) == false) //button released
 		{
