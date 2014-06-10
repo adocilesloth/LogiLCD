@@ -41,8 +41,8 @@ bool LoadPlugin()
 	if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO) && LogiLcdIsConnected(LOGI_LCD_TYPE_COLOR))
 	{
 		//call dual thread
-		//LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Dual, NULL, 0, 0);
-		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Colour, NULL, 0, 0);
+		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Dual, NULL, 0, 0);
+		//LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Colour, NULL, 0, 0);
 	}
 	else if(LogiLcdIsConnected(LOGI_LCD_TYPE_MONO))
 	{
@@ -106,7 +106,7 @@ DWORD WINAPI Mono(LPVOID lpParam)
 	while(!done) //Text line length  is 26 characters
 	{
 		//draw mono button help background
-		LogiLcdMonoSetBackground(mono_background);
+		//LogiLcdMonoSetBackground(mono_background);
 		
 		///mute and deafen buttons
 		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
@@ -145,6 +145,11 @@ DWORD WINAPI Mono(LPVOID lpParam)
 			else
 			{
 				OBSStartStopStream();
+			}
+
+			if(OBSGetPreviewOnly())
+			{
+				OBSStartStopPreview();
 			}
 		}
 		if(altdisplast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_3) == false)
@@ -401,6 +406,11 @@ DWORD WINAPI Colour(LPVOID lpParam)
 			{
 				OBSStartStopStream();
 			}
+
+			if(OBSGetPreviewOnly())
+			{
+				OBSStartStopPreview();
+			}
 		}
 		if(cancellast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_CANCEL) == false) //button released
 		{
@@ -602,9 +612,6 @@ DWORD WINAPI Dual(LPVOID lpParam)
 
 	while(!done)
 	{
-		//draw mono button help background
-		LogiLcdMonoSetBackground(mono_background);
-		
 		//mono mute and deafen buttons
 		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
 		{
@@ -642,6 +649,11 @@ DWORD WINAPI Dual(LPVOID lpParam)
 			else
 			{
 				OBSStartStopStream();
+			}
+
+			if(OBSGetPreviewOnly())
+			{
+				OBSStartStopPreview();
 			}
 		}
 		if(altdisplast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_3) == false)
@@ -706,6 +718,11 @@ DWORD WINAPI Dual(LPVOID lpParam)
 			{
 				OBSStartStopStream();
 			}
+
+			if(OBSGetPreviewOnly())
+			{
+				OBSStartStopPreview();
+			}
 		}
 		if(cancellast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_CANCEL) == false) //button released
 		{
@@ -726,7 +743,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 
 		if(OBSGetStreaming())	//streaming
 		{
-			LogiLcdMonoSetBackground(mono_background_started);
+			LogiLcdMonoSetBackground(mono_background_started);	//button help bitmap for mono
 			if(OBSGetPreviewOnly())	//and prieview
 			{
 				LogiLcdColorSetText(0, L"Preview \u25CF", 255, 126, 0);
@@ -892,7 +909,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		}
 		else
 		{
-			LogiLcdMonoSetBackground(mono_background_stopped);
+			LogiLcdMonoSetBackground(mono_background_stopped);	//button help bitmap for mono
 			LogiLcdColorSetText(0, L"", 0, 0, 0);
 			if(OBSGetMicMuted() && OBSGetDesktopMuted())
 			{

@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="ending.h" />
     <ClInclude Include="LogiLCD.h" />
+    <ClInclude Include="mono_background.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
