@@ -36,7 +36,7 @@ void LogiLcdUpdate();
 void LogiLcdShutdown();
 
 // Monochrome LCD functions
-//bool LogiLcdMonoSetBackground(BYTE monoBitmap[]);
+bool LogiLcdMonoSetBackground(BYTE monoBitmap[]);
 bool LogiLcdMonoSetText(int lineNumber, wchar_t* text);
 
 // Color LCD functions
@@ -46,6 +46,6 @@ bool LogiLcdColorSetText(int lineNumber, wchar_t* text, int red = 255, int green
 
 //UDK functions, use this only if working with UDK
 //int LogiLcdColorSetBackgroundUDK(BYTE partialBitmap[], int arraySize);
-int LogiLcdColorResetBackgroundUDK();
+//int LogiLcdColorResetBackgroundUDK();
 //int LogiLcdMonoSetBackgroundUDK(BYTE partialBitmap[], int arraySize);
-int LogiLcdMonoResetBackgroundUDK();
+//int LogiLcdMonoResetBackgroundUDK();

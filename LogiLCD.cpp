@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "LogiLCD.h"
 #include "LogitechLcd.h"
+#include "mono_background.h
 #include <string>
 #include <sstream>
 #include <iomanip>
@@ -104,6 +105,9 @@ DWORD WINAPI Mono(LPVOID lpParam)
 	
 	while(!done) //Text line length  is 26 characters
 	{
+		//draw mono button help background
+		LogiLcdMonoSetBackground(mono_background);
+		
 		///mute and deafen buttons
 		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
 		{
@@ -168,6 +172,7 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		
 		if(OBSGetStreaming())	//streaming
 		{
+			LogiLcdMonoSetBackground(mono_background_started);
 			if(OBSGetPreviewOnly())	//and prieview
 			{
 				if(OBSGetMicMuted() && OBSGetDesktopMuted())
@@ -270,6 +275,7 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		}//end of streaming
 		else
 		{
+			LogiLcdMonoSetBackground(mono_background_stopped);
 			if(OBSGetMicMuted() && OBSGetDesktopMuted())
 			{
 				LogiLcdMonoSetText(0, L"OBS     Mute||Deaf       \u25CB");
@@ -596,6 +602,9 @@ DWORD WINAPI Dual(LPVOID lpParam)
 
 	while(!done)
 	{
+		//draw mono button help background
+		LogiLcdMonoSetBackground(mono_background);
+		
 		//mono mute and deafen buttons
 		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
 		{
@@ -717,6 +726,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 
 		if(OBSGetStreaming())	//streaming
 		{
+			LogiLcdMonoSetBackground(mono_background_started);
 			if(OBSGetPreviewOnly())	//and prieview
 			{
 				LogiLcdColorSetText(0, L"Preview \u25CF", 255, 126, 0);
@@ -882,6 +892,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		}
 		else
 		{
+			LogiLcdMonoSetBackground(mono_background_stopped);
 			LogiLcdColorSetText(0, L"", 0, 0, 0);
 			if(OBSGetMicMuted() && OBSGetDesktopMuted())
 			{
