@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
 #include "LogiLCD.h"
 #include "LogitechLcd.h"
-#include "mono_background.h
+#include "mono_background.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
