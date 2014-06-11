@@ -77,8 +77,6 @@ CTSTR GetPluginDescription()
 
 DWORD WINAPI Mono(LPVOID lpParam)
 {
-	bool done = false;
-
 	wstring scene;
 	bool miclast = false;
 	bool desklast = false;
@@ -103,11 +101,8 @@ DWORD WINAPI Mono(LPVOID lpParam)
 	int hour;
 	wstringstream stime;
 	
-	while(!done) //Text line length  is 26 characters
+	while(!close.state()) //Text line length  is 26 characters
 	{
-		//draw mono button help background
-		//LogiLcdMonoSetBackground(mono_background);
-		
 		///mute and deafen buttons
 		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
 		{
@@ -119,7 +114,7 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		}
 		miclast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1);
 		desklast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_2);
-		//stream and prieview buttons
+		//stream and preview buttons
 		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
 		{
 			HWND streambutton;
@@ -178,7 +173,7 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		if(OBSGetStreaming())	//streaming
 		{
 			LogiLcdMonoSetBackground(mono_background_started);
-			if(OBSGetPreviewOnly())	//and prieview
+			if(OBSGetPreviewOnly())	//and preview
 			{
 				if(OBSGetMicMuted() && OBSGetDesktopMuted())
 				{
@@ -311,11 +306,6 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		LogiLcdUpdate();
 
 		Sleep(16);
-
-		if(close.state())
-		{
-			done = true;
-		}
 	}
 	LogiLcdShutdown();
 
@@ -324,8 +314,6 @@ DWORD WINAPI Mono(LPVOID lpParam)
 
 DWORD WINAPI Colour(LPVOID lpParam)
 {
-	bool done = false;
-
 	bool live = false;
 
 	wstring scene;
@@ -356,7 +344,7 @@ DWORD WINAPI Colour(LPVOID lpParam)
 
 	LogiLcdColorSetTitle(L"OBS", 255, 255, 255);
 
-	while(!done)
+	while (!close.state())
 	{
 		//mute and deafen buttons
 		if(leftlast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_LEFT) == false) //button released
@@ -379,7 +367,7 @@ DWORD WINAPI Colour(LPVOID lpParam)
 		}
 		uplast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_UP);
 		downlast = LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_DOWN);
-		//stream and prieview buttons
+		//stream and preview buttons
 		if(oklast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_OK) == false) //button released
 		{
 			HWND streambutton;
@@ -556,11 +544,6 @@ DWORD WINAPI Colour(LPVOID lpParam)
 		LogiLcdUpdate();
 
 		Sleep(16);
-
-		if(close.state())
-		{
-			done = true;
-		}
 	}
 
 	LogiLcdShutdown();
@@ -569,8 +552,6 @@ DWORD WINAPI Colour(LPVOID lpParam)
 
 DWORD WINAPI Dual(LPVOID lpParam)
 {
-	bool done = false;
-
 	bool live = false;
 
 	wstring scene;
@@ -610,7 +591,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 
 	LogiLcdColorSetTitle(L"OBS", 255, 255, 255);
 
-	while(!done)
+	while (!close.state())
 	{
 		//mono mute and deafen buttons
 		if(miclast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1) == false) //button released
@@ -623,7 +604,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		}
 		miclast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_1);
 		desklast = LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_2);
-		//mono stream and prieview buttons
+		//mono stream and preview buttons
 		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
 		{
 			HWND streambutton;
@@ -744,7 +725,7 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		if(OBSGetStreaming())	//streaming
 		{
 			LogiLcdMonoSetBackground(mono_background_started);	//button help bitmap for mono
-			if(OBSGetPreviewOnly())	//and prieview
+			if(OBSGetPreviewOnly())	//and preview
 			{
 				LogiLcdColorSetText(0, L"Preview \u25CF", 255, 126, 0);
 
@@ -952,11 +933,6 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		LogiLcdUpdate();
 
 		Sleep(16);
-
-		if(close.state())
-		{
-			done = true;
-		}
 	}
 	LogiLcdShutdown();
 	return NULL;
