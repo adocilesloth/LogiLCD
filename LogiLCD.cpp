@@ -31,6 +31,8 @@ ofstream file;
 
 ending close;
 HANDLE LcdThread;
+//localisation
+LocaleStringLookup *pluginLocale = NULL;
 
 bool LoadPlugin()
 {
@@ -54,6 +56,21 @@ bool LoadPlugin()
 		//call colour thread
 		LcdThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Colour, NULL, 0, 0);
 	}
+
+	//localisation
+	 pluginLocale = new LocaleStringLookup;
+
+    if(!pluginLocale->LoadStringFile(TEXT("locale/en.txt")))
+        AppWarning(TEXT("Could not open locale string file '%s'"), TEXT("plugins/PSVPlugin/locale/en.txt"));
+
+    if(scmpi(API->GetLanguage(), TEXT("en")) != 0)
+    {
+        String pluginStringFile;
+        pluginStringFile << TEXT("locale/") << API->GetLanguage() << TEXT(".txt");
+        if(!pluginLocale->LoadStringFile(pluginStringFile))
+            AppWarning(TEXT("Could not open locale string file '%s'"), pluginStringFile.Array());
+    }
+
 	return true;
 }
 
@@ -62,6 +79,8 @@ void UnloadPlugin()
 	//stop Logitech LCD thread
 	close.now();
 	WaitForSingleObject(LcdThread, INFINITE);
+	//localisation
+	delete pluginLocale;
 	return;
 }
 
@@ -123,16 +142,16 @@ DWORD WINAPI Mono(LPVOID lpParam)
 		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
 		{
 			HWND streambutton;
-			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), PluginStr("MainWindow.StartStream"));
 			if(!streambutton)	//"Start Streaming" button not found, look for "Stop Streaming" button
 			{
-				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), PluginStr("MainWindow.StopStream"));
 			}
 
 			int brec;
 			brec = IsWindowEnabled(streambutton);
 			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
-			//force OBSStartStopStream() (Will do this for non-English localisation)
+			//force OBSStartStopStream()
 			if(!streambutton)
 			{
 				brec = 1;
@@ -383,16 +402,16 @@ DWORD WINAPI Colour(LPVOID lpParam)
 		if(oklast == true &&  LogiLcdIsButtonPressed(LOGI_LCD_COLOR_BUTTON_OK) == false) //button released
 		{
 			HWND streambutton;
-			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
-			if(!streambutton)
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), PluginStr("MainWindow.StartStream"));
+			if(!streambutton)	//"Start Streaming" button not found, look for "Stop Streaming" button
 			{
-				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), PluginStr("MainWindow.StopStream"));
 			}
 
 			int brec;
 			brec = IsWindowEnabled(streambutton);
 			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
-			//force OBSStartStopStream() (Will do this for non-English localisation)
+			//force OBSStartStopStream()
 			if(!streambutton)
 			{
 				brec = 1;
@@ -627,16 +646,16 @@ DWORD WINAPI Dual(LPVOID lpParam)
 		if(livelast == true && LogiLcdIsButtonPressed(LOGI_LCD_MONO_BUTTON_0) == false)
 		{
 			HWND streambutton;
-			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Start Streaming"));
-			if(!streambutton)
+			streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), PluginStr("MainWindow.StartStream"));
+			if(!streambutton)	//"Start Streaming" button not found, look for "Stop Streaming" button
 			{
-				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), TEXT("Stop Streaming"));
+				streambutton = FindWindowEx(OBSGetMainWindow(), NULL, TEXT("Button"), PluginStr("MainWindow.StopStream"));
 			}
 
 			int brec;
 			brec = IsWindowEnabled(streambutton);
 			//if either "Start Streaming" or "Stop Streaming" buttons are not found,
-			//force OBSStartStopStream() (Will do this for non-English localisation)
+			//force OBSStartStopStream()
 			if(!streambutton)
 			{
 				brec = 1;

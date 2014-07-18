@@ -28,3 +28,7 @@ extern "C" __declspec(dllexport) CTSTR GetPluginDescription();
 DWORD WINAPI Mono(LPVOID);
 DWORD WINAPI Colour(LPVOID);
 DWORD WINAPI Dual(LPVOID);
+
+//localisation
+extern LocaleStringLookup *pluginLocale;
+#define PluginStr(text) pluginLocale->LookupString(TEXT2(text))
